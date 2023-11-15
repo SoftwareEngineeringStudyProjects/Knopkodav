@@ -1,10 +1,24 @@
-# Taking screenshots
-* https://stackoverflow.com/questions/2846947/get-screenshot-on-windows-with-python
-* https://pypi.org/project/mss/ Cross-platform
-* https://wiki.wxpython.org/WorkingWithImages#A_Flexible_Screen_Capture_App
-* PIL (Windows, MacOS, Linux added later)
-* pyautogui (seems to have some issues, but workarounds exist)
-* PrtSc 
+# Project goals
+* Two main use cases:
+  * GUI testing - write automated tests that interact with GUI applications
+  * GUI automation - write scripts that automate repeated actions, by interacting with GUI
+* Works with any GUI apps - so rely on images only (don't try to access underlying GUI structure, such as DOM in browser)
+  * Unlike many existing tools, can search GUI elements using different criteria (coordinates, image, text)
+* Different ways of specifying scripts
+  * API for programming languages (e.g. Python)
+  * Visual editor?
+  * Some file/directory format for storing target patterns (images), actions, script logic, ...
+* Convenient ways of creating and editing scripts
+  * Macro recorder mode - user performs actions, create script from these actions
+  * Editing existing script, with option to test image match on stored screenshots
+  * Working with video recordings
+
+# Similar projects
+* pyautogui
+* Sikuli http://doc.sikuli.org/ 
+* AutoIT
+* AutoHotkey
+* ...
 
 # Development directions
 * Macro recorder + editor (specify UI elements, fix mistakes)
@@ -20,6 +34,14 @@
 * UI element/component
 * Event? = low-level action, e.g. click on element
 * Element DB - recognized elements, UI structure, actions and extractors, ...
+
+# Taking screenshots
+* https://stackoverflow.com/questions/2846947/get-screenshot-on-windows-with-python
+* https://pypi.org/project/mss/ Cross-platform
+* https://wiki.wxpython.org/WorkingWithImages#A_Flexible_Screen_Capture_App
+* PIL (Windows, MacOS, Linux added later)
+* pyautogui (seems to have some issues, but workarounds exist)
+* PrtSc 
 
 # Recorder
 * Can listen to mouse and keyboard events
