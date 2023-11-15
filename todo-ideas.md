@@ -60,3 +60,7 @@
 * so need to implement better cropping
 * and also check for black pixels in target images, maybe remove/crop or replace with something else?
 * maybe find a way to search for N best results, or results until noticeable gap
+  * can use np.argpartition (finds N best results, more efficient)
+  * or np.argsort (sorts from best to worst, less efficient - O(n log n))
+  * but argpartition returns many close values, need to remove them, don't know how many such "duplicates"
+  * for "noticeable gap", need argsort anyway 

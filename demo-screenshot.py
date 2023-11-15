@@ -237,7 +237,7 @@ def draw_all_boxes(image_path, part_path, confidence_level = 0.9):
         print("image with boxes saved")
 
 
-def locate_draw_boxes_opencv(image_path, part_path, single_best_result = False, confidence_level = 0.9):
+def locate_draw_boxes_opencv(image_path, part_path, single_best_result = False, confidence_level = 0.9, expected_results = 0):
     import cv2 as cv
     import numpy as np
 
@@ -258,6 +258,15 @@ def locate_draw_boxes_opencv(image_path, part_path, single_best_result = False, 
             top_left = max_loc
         bottom_right = (top_left[0] + w, top_left[1] + h)
         cv.rectangle(img_rgb, top_left, bottom_right, (0, 0, 255), 2)
+    elif expected_results > 0:
+        flat = res.flatten()
+        #indices_flat = np.argpartition(flat,expected_results)[:expected_results]
+        indices_flat = np.argsort(flat)[:expected_results]
+        indices_tuple = np.unravel_index(indices_flat, res.shape)
+        for i, y in enumerate(indices_tuple[0]):
+            x = indices_tuple[1][i]
+            cv.rectangle(img_rgb, (x,y), (x + w, y + h), (0, 0, 255), 2)
+
     else:
         if method == cv.TM_SQDIFF_NORMED: # smaller values = better match
             threshold = 1 - confidence_level
@@ -293,4 +302,5 @@ print("starting replay...")
 #locate_draw_boxes_opencv("recorded-1.png", "part-1.png", confidence_level=0.93)
 #crop_image("part-1.png","part-1c.png", 5, 5, 5, 5)
 draw_all_boxes("recorded-3.png", "part-3.png",confidence_level=0.9)
-locate_draw_boxes_opencv("recorded-3.png", "part-3.png", single_best_result=True, confidence_level=0.9)
+#locate_draw_boxes_opencv("recorded-3.png", "part-3.png", single_best_result=False, confidence_level=0.9)
+locate_draw_boxes_opencv("recorded-3.png", "part-3.png", single_best_result=False, expected_results=20)
