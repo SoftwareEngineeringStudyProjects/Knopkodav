@@ -261,15 +261,31 @@ def locate_draw_boxes_opencv(image_path, part_path, single_best_result = False, 
     elif expected_results > 0:
         flat = res.flatten()
         #indices_flat = np.argpartition(flat,expected_results)[:expected_results]
-        indices_flat = np.argsort(flat)[:expected_results]
+        indices_flat = np.argsort(flat) # all results, not just limited number [:expected_results]
         indices_tuple = np.unravel_index(indices_flat, res.shape)
         prev_value = 1
+        found_rectangles = []
         for i, y in enumerate(indices_tuple[0]):
             x = indices_tuple[1][i]
             value = flat[indices_flat[i]]
-            print(f'{i}. found at position x={x}, y={y} value={value}, increased {value/prev_value}')
+            print(f'{i}. found at position x={x}, y={y} value={value}, increased {value / prev_value}')
             prev_value = value
+
+            rectangle = [x, y, x+w, y+h]
+            for index, found_rect in enumerate(found_rectangles):
+                if is_intersection(found_rect, rectangle):
+                    #found_rectangles[index] = get_max_rectangle(found_rect, rectangle) # don't increase size
+                    print(f'  similar rectangle found at index {index}, with x={found_rect[LEFT]}, y={found_rect[TOP]}')
+                    break
+            else:
+                print(f'  similar rectangle not found, adding at index {len(found_rectangles)}')
+                found_rectangles.append(rectangle)
+
             cv.rectangle(img_rgb, (x,y), (x + w, y + h), (0, 0, 255), 2)
+            if len(found_rectangles) >= expected_results:
+                print(f'{expected_results} found, stopping search')
+                break
+
 
     else:
         if method == cv.TM_SQDIFF_NORMED: # smaller values = better match
