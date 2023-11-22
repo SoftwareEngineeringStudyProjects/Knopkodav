@@ -263,8 +263,12 @@ def locate_draw_boxes_opencv(image_path, part_path, single_best_result = False, 
         #indices_flat = np.argpartition(flat,expected_results)[:expected_results]
         indices_flat = np.argsort(flat)[:expected_results]
         indices_tuple = np.unravel_index(indices_flat, res.shape)
+        prev_value = 1
         for i, y in enumerate(indices_tuple[0]):
             x = indices_tuple[1][i]
+            value = flat[indices_flat[i]]
+            print(f'{i}. found at position x={x}, y={y} value={value}, increased {value/prev_value}')
+            prev_value = value
             cv.rectangle(img_rgb, (x,y), (x + w, y + h), (0, 0, 255), 2)
 
     else:
