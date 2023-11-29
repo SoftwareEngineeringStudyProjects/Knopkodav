@@ -237,7 +237,8 @@ def draw_all_boxes(image_path, part_path, confidence_level = 0.9):
         print("image with boxes saved")
 
 
-def locate_draw_boxes_opencv(image_path, part_path, single_best_result = False, confidence_level = 0.9, expected_results = 0):
+def locate_draw_boxes_opencv(image_path, part_path,
+                             single_best_result=False, confidence_level=0.9, expected_results=0, match_gap=0):
     import cv2 as cv
     import numpy as np
 
@@ -258,7 +259,7 @@ def locate_draw_boxes_opencv(image_path, part_path, single_best_result = False, 
             top_left = max_loc
         bottom_right = (top_left[0] + w, top_left[1] + h)
         cv.rectangle(img_rgb, top_left, bottom_right, (0, 0, 255), 2)
-    elif expected_results > 0:
+    elif expected_results > 0 or match_gap > 0:
         flat = res.flatten()
         #indices_flat = np.argpartition(flat,expected_results)[:expected_results]
         indices_flat = np.argsort(flat) # all results, not just limited number [:expected_results]
@@ -269,6 +270,9 @@ def locate_draw_boxes_opencv(image_path, part_path, single_best_result = False, 
             x = indices_tuple[1][i]
             value = flat[indices_flat[i]]
             print(f'{i}. found at position x={x}, y={y} value={value}, increased {value / prev_value}')
+            if match_gap > 0 and i > 0 and value / prev_value >= match_gap:
+                print(f'larger than gap {match_gap}, stopping search')
+                break
             prev_value = value
 
             rectangle = [x, y, x+w, y+h]
@@ -282,7 +286,7 @@ def locate_draw_boxes_opencv(image_path, part_path, single_best_result = False, 
                 found_rectangles.append(rectangle)
 
             cv.rectangle(img_rgb, (x,y), (x + w, y + h), (0, 0, 255), 2)
-            if len(found_rectangles) >= expected_results:
+            if expected_results > 0 and len(found_rectangles) >= expected_results:
                 print(f'{expected_results} found, stopping search')
                 break
 
@@ -309,6 +313,7 @@ def crop_image(input_path, output_path, left, top, right, bottom):
 
 print("started detecting")
 #detect_clicks()
+#exit(0)
 time.sleep(1)
 print("starting replay...")
 #replay(3)
@@ -321,6 +326,7 @@ print("starting replay...")
 #draw_all_boxes("recorded-1.png", "part-1.png", confidence_level=0.75)
 #locate_draw_boxes_opencv("recorded-1.png", "part-1.png", confidence_level=0.93)
 #crop_image("part-1.png","part-1c.png", 5, 5, 5, 5)
-draw_all_boxes("recorded-3.png", "part-3.png",confidence_level=0.9)
+#draw_all_boxes("recorded-3.png", "part-3.png",confidence_level=0.9)
 #locate_draw_boxes_opencv("recorded-3.png", "part-3.png", single_best_result=False, confidence_level=0.9)
-locate_draw_boxes_opencv("recorded-3.png", "part-3.png", single_best_result=False, expected_results=20)
+#locate_draw_boxes_opencv("recorded-3.png", "part-3.png", single_best_result=False, expected_results=20)
+locate_draw_boxes_opencv("recorded-1.png", "part-1.png", match_gap=10)
