@@ -267,19 +267,20 @@ def locate_draw_boxes_opencv(image_path, part_path,
         prev_value = 1
         found_rectangles = []
         gaps_skipped = 0
+        needs_increase_skipped = 0
         for i, y in enumerate(indices_tuple[0]):
             x = indices_tuple[1][i]
             value = flat[indices_flat[i]]
             print(f'{i}. found at position x={x}, y={y} value={value}, increased {value / prev_value}')
             if match_gap > 0 and i > 0 and value / prev_value >= match_gap:
-                if gaps_skipped >= gap_skip:
-                    print(f'larger than gap {match_gap}, already skipped {gaps_skipped} times, stopping search')
-                    break
-                else:
-                    print(f'larger than gap {match_gap}, already skipped {gaps_skipped} times out of {gap_skip}')
-                    gaps_skipped += 1
+                print(f'larger than gap {match_gap}')
+                needs_increase_skipped += 1
+
+
 
             prev_value = value
+
+            cv.rectangle(img_rgb, (x, y), (x + w, y + h), (0, 0, 255), 2)
 
             rectangle = [x, y, x+w, y+h]
             for index, found_rect in enumerate(found_rectangles):
@@ -290,8 +291,16 @@ def locate_draw_boxes_opencv(image_path, part_path,
             else:
                 print(f'  similar rectangle not found, adding at index {len(found_rectangles)}')
                 found_rectangles.append(rectangle)
+                if needs_increase_skipped > 0:
+                    gaps_skipped += 1
+                    needs_increase_skipped -= 1
+                    print(f'gaps_skipped = {gaps_skipped}, needs_increase_skipped = {needs_increase_skipped}')
+                    if gaps_skipped >= gap_skip:
+                        print(f'larger than gap {match_gap}, already skipped {gaps_skipped} times, stopping search')
+                        break
+                    else:
+                        print(f'larger than gap {match_gap}, already skipped {gaps_skipped} times out of {gap_skip}')
 
-            cv.rectangle(img_rgb, (x,y), (x + w, y + h), (0, 0, 255), 2)
             if expected_results > 0 and len(found_rectangles) >= expected_results:
                 print(f'{expected_results} found, stopping search')
                 break
@@ -335,4 +344,4 @@ print("starting replay...")
 #draw_all_boxes("recorded-3.png", "part-3.png",confidence_level=0.9)
 #locate_draw_boxes_opencv("recorded-3.png", "part-3.png", single_best_result=False, confidence_level=0.9)
 #locate_draw_boxes_opencv("recorded-3.png", "part-3.png", single_best_result=False, expected_results=20)
-locate_draw_boxes_opencv("recorded-3.png", "part-3.png", match_gap=1.35, gap_skip=1)
+locate_draw_boxes_opencv("recorded-1.png", "part-1.png", match_gap=1.35, gap_skip=2)
