@@ -238,7 +238,7 @@ def draw_all_boxes(image_path, part_path, confidence_level = 0.9):
 
 
 def locate_draw_boxes_opencv(image_path, part_path,
-                             single_best_result=False, confidence_level=0.9, expected_results=0, match_gap=0):
+                             single_best_result=False, confidence_level=0.9, expected_results=0, match_gap=0, gap_skip=0):
     import cv2 as cv
     import numpy as np
 
@@ -266,13 +266,19 @@ def locate_draw_boxes_opencv(image_path, part_path,
         indices_tuple = np.unravel_index(indices_flat, res.shape)
         prev_value = 1
         found_rectangles = []
+        gaps_skipped = 0
         for i, y in enumerate(indices_tuple[0]):
             x = indices_tuple[1][i]
             value = flat[indices_flat[i]]
             print(f'{i}. found at position x={x}, y={y} value={value}, increased {value / prev_value}')
             if match_gap > 0 and i > 0 and value / prev_value >= match_gap:
-                print(f'larger than gap {match_gap}, stopping search')
-                break
+                if gaps_skipped >= gap_skip:
+                    print(f'larger than gap {match_gap}, already skipped {gaps_skipped} times, stopping search')
+                    break
+                else:
+                    print(f'larger than gap {match_gap}, already skipped {gaps_skipped} times out of {gap_skip}')
+                    gaps_skipped += 1
+
             prev_value = value
 
             rectangle = [x, y, x+w, y+h]
@@ -329,4 +335,4 @@ print("starting replay...")
 #draw_all_boxes("recorded-3.png", "part-3.png",confidence_level=0.9)
 #locate_draw_boxes_opencv("recorded-3.png", "part-3.png", single_best_result=False, confidence_level=0.9)
 #locate_draw_boxes_opencv("recorded-3.png", "part-3.png", single_best_result=False, expected_results=20)
-locate_draw_boxes_opencv("recorded-1.png", "part-1.png", match_gap=10)
+locate_draw_boxes_opencv("recorded-3.png", "part-3.png", match_gap=1.35, gap_skip=1)
